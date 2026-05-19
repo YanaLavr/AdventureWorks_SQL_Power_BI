@@ -67,13 +67,11 @@
 | Offline Revenue | 73% выручки, −2,88% маржа |
 
 ## Файлы проекта
-├── data/
-│   └── (SQL-скрипты для создания таблиц — не включены, см. источник)
-├── sql/
-│   ├── fact_orders.sql          — основной факт-запрос с CTE
-│   ├── rfm_segmentation.sql     — расчет RFM-скоров
-│   └── pnl_waterfall.sql        — распределение Freight/Tax
-├── powerbi/
-│   ├── AdventureWorks.pbix      — исходный файл
-│   └── screenshots/             — скриншоты страниц
-└── README.md
+
+| Путь | Описание |
+|------|----------|
+| `data/` | SQL-скрипты для создания таблиц (не включены, см. источник) |
+| `SQL_scripts_BI.txt` | Основные скрипты |
+| `powerbi/AdventureWorks.pbix` | Исходный файл дашборда |
+| `AdventureWorks_SQL` | Дашборд в PDF |
+| `README.md` | Описание проекта |
