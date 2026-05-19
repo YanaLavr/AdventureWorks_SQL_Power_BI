@@ -1,0 +1,149 @@
+SQL scripts for Power BI
+
+-- dim_customer
+WITH rfm_base AS (
+    SELECT 
+        c.CustomerID,
+        MAX(soh.OrderDate) AS last_order_date,
+        COUNT(DISTINCT sod.SalesOrderID) AS frequency,
+        ROUND(SUM(sod.OrderQty * sod.UnitPrice * (1 - sod.UnitPriceDiscount)), 2) AS monetary
+    FROM customer c
+    INNER JOIN salesorderheader soh ON c.CustomerID = soh.CustomerID
+    INNER JOIN salesorderdetail sod ON soh.SalesOrderID = sod.SalesOrderID
+    GROUP BY c.CustomerID
+),
+rfm_scores AS (
+    SELECT 
+        CustomerID,
+        last_order_date,
+        DATEDIFF('2004-07-31', last_order_date) AS recency,
+        frequency,
+        monetary,
+        NTILE(5) OVER (ORDER BY DATEDIFF('2004-07-31', last_order_date) DESC) AS r_score,
+        NTILE(5) OVER (ORDER BY frequency) AS f_score,
+        NTILE(5) OVER (ORDER BY monetary) AS m_score
+    FROM rfm_base
+),
+rfm_segments AS (
+    SELECT 
+        CustomerID,
+        recency,
+        frequency,
+        monetary,
+        r_score,
+        f_score,
+        m_score,
+        CASE 
+            WHEN r_score = 5 AND f_score >= 4 AND m_score >= 4 THEN 'Champions'
+            WHEN r_score = 5 AND f_score >= 3 AND m_score >= 3 THEN 'Loyal Customers'
+            WHEN r_score = 5 AND f_score = 1 THEN 'New Customers'
+            WHEN r_score = 5 AND f_score <= 2 THEN 'Potential Loyalists'
+            WHEN r_score = 4 THEN 'Promising'
+            WHEN r_score = 3 AND f_score >= 3 AND m_score >= 3 THEN 'Need Attention'
+            WHEN r_score = 3 AND f_score <= 2 THEN 'About to Sleep'
+            WHEN r_score = 2 AND m_score >= 4 THEN 'At Risk'
+            WHEN r_score = 2 AND m_score <= 3 THEN 'Cannot Lose Them'
+            WHEN r_score = 1 AND f_score >= 3 THEN 'Hibernating'
+            WHEN r_score = 1 AND f_score <= 2 THEN 'Lost'
+            ELSE 'Others'
+        END AS segment_name
+    FROM rfm_scores
+)
+SELECT 
+    CustomerID,
+    recency,
+    frequency,
+    monetary,
+    r_score,
+    f_score,
+    m_score,
+    segment_name
+FROM rfm_segments;
+
+-- dim_product
+SELECT 
+    p.ProductID,
+    p.Name AS ProductName,
+    COALESCE(pc.Name, 'No Category') AS CategoryName,
+    COALESCE(psc.Name, 'No Subcategory') AS SubcategoryName,
+    p.StandardCost,
+    p.ListPrice
+FROM product p
+LEFT JOIN productsubcategory psc ON p.ProductSubcategoryID = psc.ProductSubcategoryID
+LEFT JOIN productcategory pc ON psc.ProductCategoryID = pc.ProductCategoryID;
+
+-- dim_territory
+SELECT 
+    TerritoryID,
+    Name AS TerritoryName,
+    CountryRegionCode AS Country,
+    `Group` AS RegionGroup,
+    SalesYTD
+FROM salesterritory;
+
+-- dim_salesperson
+SELECT 
+    e.EmployeeID AS SalesPersonID,
+    CONCAT(COALESCE(c.FirstName, ''), ' ', COALESCE(c.LastName, '')) AS SalesPersonName,
+    e.Title,
+    sp.SalesQuota,
+    sp.SalesYTD,
+    sp.Bonus,
+    sp.CommissionPct
+FROM employee e
+INNER JOIN salesperson sp ON e.EmployeeID = sp.SalesPersonID
+LEFT JOIN contact c ON e.ContactID = c.ContactID;
+
+-- fact_monthly
+SELECT 
+    YEAR(soh.OrderDate) AS Year,
+    MONTH(soh.OrderDate) AS Month,
+    DATE_FORMAT(soh.OrderDate, '%Y-%m') AS YearMonth,
+    soh.TerritoryID,
+    COUNT(DISTINCT sod.SalesOrderID) AS orders_count,
+    ROUND(SUM(sod.OrderQty * sod.UnitPrice * (1 - sod.UnitPriceDiscount)), 2) AS revenue,
+    ROUND(SUM(sod.OrderQty * p.StandardCost), 2) AS cost,
+    ROUND(SUM(sod.OrderQty * (sod.UnitPrice * (1 - sod.UnitPriceDiscount) - p.StandardCost)), 2) AS profit
+FROM salesorderheader soh
+INNER JOIN salesorderdetail sod ON soh.SalesOrderID = sod.SalesOrderID
+INNER JOIN product p ON sod.ProductID = p.ProductID
+GROUP BY YEAR(soh.OrderDate), MONTH(soh.OrderDate), DATE_FORMAT(soh.OrderDate, '%Y-%m'), soh.TerritoryID
+ORDER BY Year, Month;
+
+-- fact_orders
+WITH order_totals AS (
+    SELECT 
+        SalesOrderID,
+        SUM(LineTotal) AS order_total
+    FROM SalesOrderDetail
+    GROUP BY SalesOrderID
+)
+SELECT 
+    sod.SalesOrderDetailID,
+    sod.SalesOrderID,
+    sod.ProductID,
+    sod.OrderQty,
+    sod.UnitPrice,
+    sod.UnitPriceDiscount,
+    sod.LineTotal AS revenue,
+    p.StandardCost * sod.OrderQty AS cost,
+    sod.LineTotal - (p.StandardCost * sod.OrderQty) AS profit,
+    
+    soh.Freight * (sod.LineTotal / ot.order_total) AS freight_alloc,
+    soh.TaxAmt * (sod.LineTotal / ot.order_total) AS tax_alloc,
+
+    soh.OrderDate,
+    YEAR(soh.OrderDate) AS Year,
+    MONTH(soh.OrderDate) AS Month,
+    soh.CustomerID,
+    soh.TerritoryID,
+    soh.SalesPersonID,
+    soh.OnlineOrderFlag
+
+FROM SalesOrderDetail sod
+JOIN SalesOrderHeader soh 
+    ON sod.SalesOrderID = soh.SalesOrderID
+JOIN Product p 
+    ON sod.ProductID = p.ProductID
+JOIN order_totals ot 
+    ON sod.SalesOrderID = ot.SalesOrderID;
