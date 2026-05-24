@@ -41,7 +41,7 @@ to visualizing financial metrics, customer segmentation, and what-if scenarios.
 - Insights in English
 
 ### 2. Product & Margin Analysis
-- Top 20 loss-making products with conditional formatting
+- Products table with conditional formatting
 - Color coding: 🔴 Critical loss 🟡 Unprofitable 🟢 Profitable
 - Category filters (buttons): Accessories, Bikes, Clothing, Components
 - Stacked bar: margin structure by category

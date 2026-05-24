@@ -12,6 +12,10 @@
 - **Источник:** [tapsey/AdventureWorksMYSQL](https://github.com/tapsey/AdventureWorksMYSQL)
 - **Развертывание:** локальная установка MySQL + DBeaver
 
+## Язык
+Дашборд построен на английском языке из-за англоязычной исходной базы данных 
+(названия продуктов, категории, территории).
+
 ## Структура данных
 
 | Таблица | Строки | Описание |
@@ -41,7 +45,7 @@
 - Инсайты на английском
 
 ### 2. Product & Margin Analysis
-- Топ-20 убыточных продуктов с conditional formatting
+- Таблица продуктов с conditional formatting
 - Цветовая маркировка: 🔴 Critical loss 🟡 Unprofitable 🟢 Profitable
 - Фильтрация по категориям (кнопки): Accessories, Bikes, Clothing, Components
 - Stacked bar: структура маржи по категориям
@@ -77,19 +81,11 @@
 
 ## Файлы проекта
 
-<<<<<<< HEAD:Readme.md
 | Путь | Описание |
 |------|----------|
 | `data/` | SQL-скрипты для создания таблиц (не включены, см. источник) |
 | `SQL_scripts_BI.txt` | Основные скрипты |
+| `dax_measures.txt` | DAX-меры |
 | `powerbi/AdventureWorks.pbix` | Исходный файл дашборда |
 | `AdventureWorks_SQL` | Дашборд в PDF |
-| `README.md` | Описание проекта |
-=======
-| Файл | Описание |
-|------|----------|
-| `SQL_scripts_BI.txt` | Все SQL-запросы: fact_orders, RFM, P&L waterfall |
-| `AdventureWorks.pbix` | Дашборд Power BI |
-| `AdventureWorks_SQL.pdf` | Скриншоты страниц |
-| `dax_measures.txt` | DAX-меры (добавлены позже) |
 | `README.md` | Описание проекта |
