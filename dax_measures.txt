@@ -1,0 +1,133 @@
+-- DAX MEASURES | AdventureWorks BI Dashboard
+
+-- 1. EXECUTIVE SUMMARY
+
+Total Revenue = 
+SUM(fact_orders[revenue])
+
+Total Cost = 
+SUM(fact_orders[cost])
+
+Gross Profit = 
+SUM(fact_orders[profit])
+
+Gross Margin % = 
+DIVIDE([Gross Profit], [Total Revenue], 0)
+
+Total Freight = 
+SUM(fact_orders[freight_alloc])
+
+Total Tax = 
+SUM(fact_orders[tax_alloc])
+
+Operating Profit = 
+[Gross Profit] - [Total Freight] - [Total Tax]
+
+Operating Margin % = 
+DIVIDE([Operating Profit], [Total Revenue], 0)
+
+Online Profit = 
+CALCULATE(
+    SUM(fact_orders[profit]),
+    fact_orders[OnlineOrderFlag] = 1
+)
+
+Offline Profit = 
+CALCULATE(
+    SUM(fact_orders[profit]),
+    fact_orders[OnlineOrderFlag] = 0
+)
+
+Monthly Margin % = 
+DIVIDE(
+    SUM(fact_monthly[profit]),
+    SUM(fact_monthly[revenue]),
+    0
+)
+
+
+-- 2. PRODUCT & MARGIN
+
+Margin % = 
+DIVIDE([Total Profit], [Total Revenue], 0)
+
+Savings if Excluded = 
+IF(
+    [Margin %] < 0,
+    ABS([Total Profit]),
+    0
+)
+
+Potential Savings = 
+SUMX(
+    FILTER(
+        VALUES(dim_product[ProductName]),
+        [Margin %] < 0
+    ),
+    ABS([Total Profit])
+)
+
+
+-- 3. TERRITORY & SALES TEAM
+
+Avg Margin = 
+DIVIDE(
+    [Total Profit],
+    [Total Revenue],
+    0
+)
+
+Margin Variance = 
+[Margin %] - [Avg Margin]
+
+Margin vs Avg Color = 
+IF(
+    [Margin %] >= [Avg Margin],
+    "#2E7D32",
+    "#D64545"
+)
+
+
+-- 4. CUSTOMER RFM
+
+Customer Value = 
+[Avg Bill] * [frequency]
+
+
+-- 5. P&L WATERFALL
+
+-- Base measures (same as Executive Summary)
+-- Plus what-if parameters:
+
+-- Parameter: TaxReduction (0, 10, 20, 30, 40, 50)
+-- Parameter: PriceIncrease (0, 5, 10, 15, 20)
+
+Adjusted Tax = 
+[Total Tax] * (1 - [TaxReduction Value] / 100)
+
+Adjusted Operating Profit = 
+[Gross Profit] - [Total Freight] - [Adjusted Tax]
+
+Adjusted Revenue = 
+[Total Revenue] * (1 + [PriceIncrease Value] / 100)
+
+Adjusted Gross Profit_Price = 
+[Adjusted Revenue] - [Total Cost]
+
+Adjusted Operating Profit_Price = 
+[Adjusted Gross Profit_Price] - [Total Freight] - [Total Tax]
+
+
+-- 6. WATERFALL CHART
+
+_WF_Revenue = [Total Revenue]
+
+_WF_COGS = -[Total Cost]
+
+_WF_GrossProfit = [Gross Profit]
+
+_WF_Freight = -[Total Freight]
+
+_WF_Tax = -[Total Tax]
+
+_WF_OperatingProfit = [Operating Profit]

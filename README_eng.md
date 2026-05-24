@@ -81,8 +81,8 @@ to visualizing financial metrics, customer segmentation, and what-if scenarios.
 |------|-------------|
 | `SQL_scripts_BI.txt` | All SQL queries: fact_orders, RFM, P&L waterfall |
 | `AdventureWorks.pbix` | Power BI dashboard |
-| `draft_AdventureWorks_SQL.pdf` | Dashboard screenshots |
-| `dax/measures.txt` | DAX measures (added later) |
+| `AdventureWorks_SQL.pdf` | Dashboard screenshots |
+| `dax_measures.txt` | DAX measures (added later) |
 | `README_eng.md` | Project description |
 
 ## Project Features

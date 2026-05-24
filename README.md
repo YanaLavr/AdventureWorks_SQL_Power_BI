@@ -4,7 +4,7 @@
 
 Интерактивный аналитический дашборд для компании AdventureWorks (2001–2004). 
 Проект демонстрирует полный цикл аналитики: от загрузки данных в БД до 
-визуализации финансовых метрик и сегментации клиентов.
+визуализации финансовых метрик, сегментации клиентов и what-if сценариев.
 
 ## Источник данных
 
@@ -35,26 +35,35 @@
 ## Страницы дашборда
 
 ### 1. Executive Summary
-- KPI: Revenue, Gross Profit, Operating Profit
+- KPI: Revenue, Gross Profit, Operating Profit, Operating Margin %
 - Динамика выручки и прибыли по годам (2001–2004)
-- Разбивка Online vs Offline
+- Combo chart: Revenue + Profit + Margin % с двумя осями
+- Инсайты на английском
 
 ### 2. Product & Margin Analysis
-- Топ-20 убыточных продуктов
-- Анализ по категориям: Bikes, Components, Clothing, Accessories
-- Инсайты по ассортименту
+- Топ-20 убыточных продуктов с conditional formatting
+- Цветовая маркировка: 🔴 Critical loss 🟡 Unprofitable 🟢 Profitable
+- Фильтрация по категориям (кнопки): Accessories, Bikes, Clothing, Components
+- Stacked bar: структура маржи по категориям
 
 ### 3. Territory & Sales Team
-- Маржа по 10 территориям
-- Эффективность 11 менеджеров продаж
+- Маржа по 10 территориям с target line (средняя маржа)
+- Цветовое кодирование: зелёный (плюс) / красный (минус)
+- Таблица менеджеров с сортировкой по марже
+- Инсайты на английском
 
 ### 4. Customer Segments (RFM)
 - RFM-сегментация: Champions, Loyal, At Risk, Lost и др.
-- Стратегия удержания по сегментам
+- Combo chart: Customer Count + Avg Bill по сегментам
+- Инсайты на английском
 
 ### 5. P&L Financial Waterfall
 - Водопад прибыли: Revenue → COGS → Gross Profit → Freight → Tax → Operating Profit
-- Диагностика операционного убытка
+- What-if сценарии:
+  - Tax reduction % (0–50%)
+  - Price increase % (0–20%)
+- Интерактивный расчёт Adjusted Operating Profit
+- Инсайты на английском
 
 ## Ключевые выводы
 
@@ -68,10 +77,19 @@
 
 ## Файлы проекта
 
+<<<<<<< HEAD:Readme.md
 | Путь | Описание |
 |------|----------|
 | `data/` | SQL-скрипты для создания таблиц (не включены, см. источник) |
 | `SQL_scripts_BI.txt` | Основные скрипты |
 | `powerbi/AdventureWorks.pbix` | Исходный файл дашборда |
 | `AdventureWorks_SQL` | Дашборд в PDF |
+| `README.md` | Описание проекта |
+=======
+| Файл | Описание |
+|------|----------|
+| `SQL_scripts_BI.txt` | Все SQL-запросы: fact_orders, RFM, P&L waterfall |
+| `AdventureWorks.pbix` | Дашборд Power BI |
+| `AdventureWorks_SQL.pdf` | Скриншоты страниц |
+| `dax_measures.txt` | DAX-меры (добавлены позже) |
 | `README.md` | Описание проекта |
